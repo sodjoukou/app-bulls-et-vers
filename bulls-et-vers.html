@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bulls & Vers 🌹</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-logo">Bulls <span>&</span> Vers<small>votre espace privé ✦</small></div>
+  <p class="login-subtitle">qui êtes-vous ?</p>
+  <div class="user-btns">
+    <button class="user-btn" onclick="login('moi')">Moi</button>
+    <button class="user-btn her" onclick="login('emilie')">Émilie 🌹</button>
+  </div>
+</div>
+
+<div id="topbar" style="display:none">
+  <div class="app-name">Bulls <span>&</span> Vers</div>
+  <div class="user-badge">
+    <div class="avatar me" id="topbar-avatar">M</div>
+    <span id="topbar-name">Moi</span>
+    <span class="sync-dot" id="sync-dot"></span>
+    <button class="logout-btn" onclick="logout()">changer ↩</button>
+  </div>
+</div>
+
+<div id="nav-tabs" style="display:none">
+  <button class="tab-btn active" data-tab="bd" onclick="switchTab('bd')">📚 BD</button>
+  <button class="tab-btn" data-tab="poemes" onclick="switchTab('poemes')">✒️ Poèmes</button>
+  <button class="tab-btn" data-tab="chat" onclick="switchTab('chat')">💬 Chat<span id="chat-notif" class="notif-dot" style="display:none"></span></button>
+</div>
+
+<div id="content" style="display:none">
+  <!-- BD -->
+  <div class="section active" id="section-bd">
+    <div class="sec-header">
+      <span class="sec-title">Bandes Dessinées</span>
+      <span class="sec-count" id="bd-count"></span>
+      <button class="add-btn" onclick="openAddBD()">+ Ajouter</button>
+    </div>
+    <div class="bd-grid" id="bd-grid"><div class="loading">Chargement…</div></div>
+  </div>
+
+  <!-- POÈMES -->
+  <div class="section" id="section-poemes">
+    <div class="sec-header">
+      <span class="sec-title">Poèmes</span>
+      <span class="sec-count" id="poem-count"></span>
+      <button class="add-btn" onclick="openAddPoem()">+ Ajouter</button>
+    </div>
+    <div class="poem-grid" id="poem-grid"><div class="loading">Chargement…</div></div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="section" id="section-chat">
+    <div class="chat-messages" id="chat-messages"><div class="loading">Chargement…</div></div>
+    <div class="chat-input-area">
+      <div class="chat-share-row">
+        <button class="share-mini-btn" onclick="toggleSharePicker('bd-picker')">📚 Partager une BD</button>
+        <button class="share-mini-btn" onclick="toggleSharePicker('poem-picker')">✒️ Partager un poème</button>
+      </div>
+      <div class="share-picker" id="bd-picker">
+        <div class="share-picker-title">CHOISIR UNE BD</div>
+        <div id="bd-picker-list"></div>
+      </div>
+      <div class="share-picker" id="poem-picker">
+        <div class="share-picker-title">CHOISIR UN POÈME</div>
+        <div id="poem-picker-list"></div>
+      </div>
+      <div class="chat-row">
+        <textarea class="chat-input" id="chat-input" placeholder="Écrire un message…" rows="1"
+          onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" onclick="sendMessage()">Envoyer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="modal-view-bd">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-head-title" id="vbd-title"></div><button class="close-btn" onclick="closeModal('modal-view-bd')">✕</button></div>
+    <div class="modal-body"><div class="bd-cover-view" id="vbd-cover"></div><div class="view-meta" id="vbd-meta"></div><p style="font-size:.95rem;line-height:1.7" id="vbd-desc"></p></div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-view-poem">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-head-title it" id="vp-title"></div><button class="close-btn" onclick="closeModal('modal-view-poem')">✕</button></div>
+    <div class="modal-body"><div class="view-meta" id="vp-meta"></div><pre class="poem-full-text" id="vp-text"></pre></div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-add-bd">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-head-title">Nouvelle BD</div><button class="close-btn" onclick="closeModal('modal-add-bd')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Titre *</label><input class="form-input" id="f-bd-title" placeholder="Titre"/></div>
+      <div class="form-group"><label class="form-label">Auteur</label><input class="form-input" id="f-bd-author" placeholder="Auteur"/></div>
+      <div class="form-group"><label class="form-label">Genre</label>
+        <select class="form-select" id="f-bd-genre">
+          <option value="">— Genre —</option>
+          <option>Aventure</option><option>Humour</option><option>Science-fiction</option>
+          <option>Fantastique</option><option>Drame</option><option>Policier</option>
+          <option>Manga</option><option>Autobiographie</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="f-bd-desc" style="min-height:70px" placeholder="Quelques mots…"></textarea></div>
+      <div class="form-group">
+        <label class="form-label">Couverture</label>
+        <div class="upload-zone" onclick="document.getElementById('f-bd-img').click()">
+          <img id="f-bd-preview" class="upload-preview" style="display:none"/>
+          <input type="file" id="f-bd-img" accept="image/*" onchange="previewImg('f-bd-img','f-bd-preview')"/>
+          <p>Cliquer pour choisir une image</p>
+        </div>
+      </div>
+      <button class="form-submit" onclick="saveBD()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-add-poem">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-head-title it">Nouveau poème</div><button class="close-btn" onclick="closeModal('modal-add-poem')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Titre *</label><input class="form-input" id="f-p-title" placeholder="Titre"/></div>
+      <div class="form-group"><label class="form-label">Auteur</label><input class="form-input" id="f-p-author" placeholder="Prénom ou pseudo"/></div>
+      <div class="form-group"><label class="form-label">Thème</label><input class="form-input" id="f-p-tag" placeholder="amour, nature, rêve…"/></div>
+      <div class="form-group"><label class="form-label">Texte *</label><textarea class="form-textarea" id="f-p-text" style="font-style:italic;min-height:160px" placeholder="Votre poème ici…"></textarea></div>
+      <button class="form-submit" onclick="savePoem()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-react" onclick="closeModal('modal-react')">
+  <div class="modal" style="max-width:280px;padding:1rem" onclick="event.stopPropagation()">
+    <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:.7rem;letter-spacing:.1em">RÉAGIR AU MESSAGE</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem" id="react-emojis"></div>
+  </div>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>

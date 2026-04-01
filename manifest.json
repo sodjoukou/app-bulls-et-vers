@@ -1,0 +1,27 @@
+{
+  "name": "Bulls & Vers",
+  "short_name": "Bulls & Vers",
+  "description": "Notre espace privé — BD & Poésie pour deux",
+  "start_url": "./bulls-et-vers.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf4eb",
+  "theme_color": "#2c1f0e",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "social"],
+  "screenshots": []
+}
